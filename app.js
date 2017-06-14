@@ -280,10 +280,13 @@ function emit(event, data, panelId) {
     request: data,
     time: getFormattedNowTime()
   };
-  socket.emit(event, data, function(res) {
+  var args = JSON.parse(data);
+  args.splice(0, 0, event);
+  args.push(function(error, res) {
     var elementToExtend = $("#emitAckResPanels").find("[data-windowId='" + panelId + "']");
-    elementToExtend.prepend('<p><span class="text-muted">' + getFormattedNowTime() + '</span><strong> ' + JSON.stringify(res) + '</strong></p>');
+    elementToExtend.prepend('<p><span class="text-muted">' + getFormattedNowTime() + '</span><strong> ' + JSON.stringify([error, res]) + '</strong></p>');
   });
+  socket.emit.apply(socket, args);
 }
 
 function addHistoryPanel(history) {
